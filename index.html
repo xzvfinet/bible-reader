@@ -96,7 +96,7 @@
 					console.log("Show All Verses");
 
 					if (chap != chapter) continue;
-					
+
 					text += ver + "절 ";
 					while(msg.length > LINE_MAX_LENGTH) {
 						var sliceIndex = 0;
@@ -116,7 +116,7 @@
 						currentChapter = chap;
 						console.log("Show All Chapters");
 
-						text += "<a href='/?id=" + id + "&c=" + chap + "'>" + chap + "장</a><br>";
+						text += "<a href='?id=" + id + "&c=" + chap + "'>" + chap + "장</a><br>";
 					}
 				}
 			}
