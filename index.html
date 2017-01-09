@@ -2,17 +2,129 @@
 
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+	<meta charset="utf-8">
 
-  <title>The HTML5 Herald</title>
-  <meta name="description" content="The HTML5 Herald">
-  <meta name="author" content="SitePoint">
+	<title>The HTML5 Herald</title>
+	<meta name="description" content="The HTML5 Herald">
 
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
-
+	<script src="static/js/jquery-3.1.1.min.js"></script>
 </head>
 
 <body>
+	<div id="myServerContents"></div>
 	
+
+	<script type="text/javascript">
+		function ParseParameter() {
+			  // This function is anonymous, is executed immediately and 
+			  // the return value is assigned to QueryString!
+			  var query_string = {};
+			  var query = window.location.search.substring(1);
+			  var vars = query.split("&");
+			  for (var i=0;i<vars.length;i++) {
+			  	var pair = vars[i].split("=");
+			        // If first entry with this name
+			        if (typeof query_string[pair[0]] === "undefined") {
+			        	query_string[pair[0]] = decodeURIComponent(pair[1]);
+			        // If second entry with this name
+			    } else if (typeof query_string[pair[0]] === "string") {
+			    	var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+			    	query_string[pair[0]] = arr;
+			        // If third or later entry with this name
+			    } else {
+			    	query_string[pair[0]].push(decodeURIComponent(pair[1]));
+			    }
+			} 
+			return query_string;
+		}
+
+		var LINE_MAX_LENGTH = 60;
+
+		var parameters = ParseParameter();
+		var id = parameters["id"];
+		var chapter = Number(parameters["c"]);
+		var verse = Number(parameters["v"]);
+
+		if (id === undefined){
+			// Show All Ids
+		}
+		else {
+			LoadText();
+		}
+
+		function LoadText(){
+			$.ajax({
+				type: "GET",
+				url: "https://raw.githubusercontent.com/xzvfinet/bible-reader/master/static/gu/1-" + id + ".txt",
+				data: {},
+				async: false,
+				dataType: "text",
+				cache: false,
+				success: OnSuccess,
+				error: function(e) {
+					alert(JSON.stringify(e));
+				}
+			});
+		}
+
+		var currentChapter = 0;
+		function OnSuccess(response) {
+			// $("#myServerContents").html(response.replace(/\n/g, "<br />"));
+
+			var lines = response.split('\n');
+
+			var text = "";
+
+
+			for(var i=0; i<lines.length; ++i){
+				var chap = Number(lines[i].split(' ')[0].slice(1).split(':')[0]);
+				var ver = Number(lines[i].split(' ')[0].slice(1).split(':')[1]);
+				var msg = lines[i].slice(lines[i].search(' '));
+
+				if (chap == 0 || ver == 0) continue;
+
+				var korLength = LINE_MAX_LENGTH * 2;
+
+				if (!isNaN(chapter) && !isNaN(verse)){
+					console.log("Show A Line");
+
+					if (chap == chapter && ver == verse){
+						break;
+					}
+				}
+				else if (!isNaN(chapter)) {
+					console.log("Show All Verses");
+
+					if (chap != chapter) continue;
+					
+					text += ver + "절 ";
+					while(msg.length > LINE_MAX_LENGTH) {
+						var sliceIndex = 0;
+						while (msg[LINE_MAX_LENGTH - sliceIndex] != ' ') {
+							sliceIndex++;
+							if (sliceIndex > LINE_MAX_LENGTH) break;
+						}
+						var sliceLength = LINE_MAX_LENGTH - sliceIndex;
+						text += msg.slice(0, sliceLength) + "<br><input id=v" + i + " size=" + korLength + " type='text'/><br>";
+						msg = msg.slice(sliceLength);
+					}
+					text += msg.slice(0, LINE_MAX_LENGTH) + "<br><input id=v" + i + " size=" + korLength + " type='text'/><br>";
+					// text += msg;
+				}
+				else {
+					if (currentChapter != chap) {
+						currentChapter = chap;
+						console.log("Show All Chapters");
+
+						text += "<a href='/?id=" + id + "&c=" + chap + "'>" + chap + "장</a><br>";
+					}
+				}
+			}
+			
+			$("#myServerContents").html(text);
+		}
+
+	</script>
+
 </body>
 </html>
