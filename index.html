@@ -87,12 +87,12 @@
 		var LINE_MAX_LENGTH = 60;
 
 		var parameters = ParseParameter();
-		var age = parameters["a"];
-		var id = parameters["id"];
-		var chapter = Number(parameters["c"]);
-		var verse = Number(parameters["v"]);
+		var p_age = parameters["a"];
+		var p_id = parameters["id"];
+		var p_chapter = Number(parameters["c"]);
+		var p_verse = Number(parameters["v"]);
 
-		if (id === undefined){
+		if (p_id === undefined){
 			// Show All Ids
 			var text = "";
 			var i=0;
@@ -106,10 +106,10 @@
 			SetContentHTML(text);
 		}
 		else {
-			if (!isNaN(chapter) && !isNaN(verse))
+			if (!isNaN(p_chapter) && !isNaN(p_verse))
 				SetContentHTML("<p>Displaying single line does not supported.</p>");
 			else
-				LoadText(age);
+				LoadText(p_age);
 		}
 
 		function ParseParameter() {
@@ -138,7 +138,7 @@
 		function LoadText(age){
 			$.ajax({
 				type: "GET",
-				url: "https://raw.githubusercontent.com/xzvfinet/bible-reader/master/static/" + age + "/" + ((age=="gu")? "1" : "2") + "-" + id + ".txt",
+				url: "https://raw.githubusercontent.com/xzvfinet/bible-reader/master/static/" + age + "/" + ((age=="gu")? "1" : "2") + "-" + p_id + ".txt",
 				data: {},
 				async: false,
 				dataType: "text",
@@ -161,14 +161,14 @@
 			for(var i=0; i<lines.length; ++i){
 				var obj = ParseLine(lines[i]);
 
-				if (obj.chap == 0 || obj.ver == 0) continue;
+				if (obj.chapter == 0 || obj.verse == 0) continue;
 
 				var korLength = LINE_MAX_LENGTH * 2;
 
-				if (!isNaN(chapter)) {
+				if (!isNaN(p_chapter)) {
 					console.log("Show All Verses");
 
-					if (obj.chap != chapter) continue;
+					if (obj.chapter != p_chapter) continue;
 
 					text += ver + "절 ";
 					while(obj.msg.length > LINE_MAX_LENGTH) {
@@ -184,14 +184,14 @@
 					text += GetInputHTML(obj.msg.slice(0, LINE_MAX_LENGTH), i, korLength);
 					// text += msg;
 				}
-				else if (currentChapter != obj.chap) {
-					currentChapter = obj.chap;
+				else if (currentChapter != obj.chapter) {
+					currentChapter = obj.chapter;
 					console.log("Show All Chapters");
 
-					text += "<a href='?a=" + age + "&id=" + id + "&c=" + obj.chap + "'>" + obj.chap + "장</a><br>";
+					text += "<a href='?a=" + p_age + "&id=" + p_id + "&c=" + obj.chapter + "'>" + obj.chapter + "장</a><br>";
 				}
 			}
-			
+
 			SetContentHTML(text);	
 		}
 
@@ -203,8 +203,8 @@
 
 			return {
 				"chNum": chNum,
-				"chap": chap,
-				"ver": ver,
+				"chapter": chap,
+				"verse": ver,
 				"msg": msg
 			}
 		}
