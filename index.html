@@ -12,7 +12,6 @@
 
 <body>
 	<div id="myServerContents"></div>
-	
 
 	<script type="text/javascript">
 
@@ -170,19 +169,7 @@
 
 					if (obj.chapter != p_chapter) continue;
 
-					text += ver + "절 ";
-					while(obj.msg.length > LINE_MAX_LENGTH) {
-						var sliceIndex = 0;
-						while (obj.msg[LINE_MAX_LENGTH - sliceIndex] != ' ') {
-							sliceIndex++;
-							if (sliceIndex > LINE_MAX_LENGTH) break;
-						}
-						var sliceLength = LINE_MAX_LENGTH - sliceIndex;
-						text += GetInputHTML(obj.msg.slice(0,sliceLength), i, korLength);
-						obj.msg = obj.msg.slice(sliceLength);
-					}
-					text += GetInputHTML(obj.msg.slice(0, LINE_MAX_LENGTH), i, korLength);
-					// text += msg;
+					text += ParseMsg(obj.msg, obj.verse, korLength);
 				}
 				else if (currentChapter != obj.chapter) {
 					currentChapter = obj.chapter;
@@ -209,12 +196,72 @@
 			}
 		}
 
-		function GetInputHTML(msg, i, length) {
-			return msg + "<br><input id=v" + i + " size=" + length + "type='text'/><br>";
+		function ParseMsg(msg, verse, length) {
+			var text = "<b>" + verse + "절</b>";
+			if (msg[1] == '<'){
+				text += " <i>" + msg.split('>')[0] + '></i>';
+				msg = msg.slice(msg.split('>')[0].length+1, msg.length);
+			}
+			while(msg.length > LINE_MAX_LENGTH) {
+				var sliceIndex = 0;
+				while (msg[LINE_MAX_LENGTH - sliceIndex] != ' ') {
+					sliceIndex++;
+					if (sliceIndex > LINE_MAX_LENGTH) break;
+				}
+				var sliceLength = LINE_MAX_LENGTH - sliceIndex;
+				text += GetLineHTML(msg.slice(0,sliceLength), i, length);
+				msg = msg.slice(sliceLength);
+			}
+			text += GetLineHTML(msg.slice(0, LINE_MAX_LENGTH), i, length);
+
+			return text;
+		}
+
+		function InputHandler(evt) {
+			// evt.value
+			var correct = evt.parentElement.children[0].innerHTML;
+			correct = correct.slice(1, correct.length);
+			var userInput = evt.value;
+			var result = CompareString(userInput, correct);
+
+			var t = GetColoredText(correct, result);
+
+			// correct.slice(0, result.length)
+			var changed = correct.replace(correct.slice(0, result.length), t);
+			evt.parentElement.children[0].innerHTML = changed;
+
+			// evt.parentElement.innerHTML = evt.parentElement.innerHTML.replace(correct.slice(0,result.length), t);
+			console.log(evt.parentElement.children[0].innerHTML);
+			// console.log(correct.slice(0, result.length));
+			// console.log(evt.parentElement.innerHTML);
+			// console.log(userInput);
+		}
+
+		function CompareString(str1, str2) {
+			var i = 0;
+			var num = (str1.length < str2.length)? str1.length : str2.length;
+			var result = [];
+			for(; i<num; ++i){
+				result.push(str1[i] == str2[i]);
+				// if (str1[i] != str2[i]) break;
+			}
+			return result;
+		}
+
+		function GetLineHTML(msg, i, length) {
+			return "<div><span>" + msg + "</span><br><input id=v" + i + " size=" + length + " type='text' oninput='InputHandler(this)' style='font-size:12pt'/><br></div>";
 		}
 
 		function SetContentHTML(text) {
 			$("#myServerContents").html(text);
+		}
+
+		function GetColoredText(msg, result) {
+			var HTML = "";
+			for(var i=0; i<result.length; ++i) {
+				HTML += "<font color='" + ((result[i])? "blue" : "red") + "'>" + msg[i] + "</font>";
+			}
+			return HTML;
 		}
 
 	</script>
