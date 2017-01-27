@@ -17,72 +17,72 @@
 	<script type="text/javascript">
 
 		var dic = [
-			["01", "창세기"],
-			["02", "출에굽기"],
-			["03", "레위기"],
-			["04", "민수기"],
-			["05", "신명기"],
-			["06", "여호수아"],
-			["07", "사사기"],
-			["08", "룻기"],
-			["09", "사무엘상"],
-			["10", "사무엘하"],
-			["11", "열왕기상"],
-			["12", "열왕기하"],
-			["13", "역대상"],
-			["14", "역대하"],
-			["15", "에스라"],
-			["16", "느헤미야"],
-			["17", "에스더"],
-			["18", "욥기"],
-			["19", "시편"],
-			["20", "잠언"],
-			["21", "전도서"],
-			["22", "아가"],
-			["23", "이사야"],
-			["24", "예레미야"],
-			["25", "예레미야애가"],
-			["26", "애스겔"],
-			["27", "다니엘"],
-			["28", "호세아"],
-			["29", "요엘"],
-			["30", "아모스"],
-			["31", "오바다"],
-			["32", "요나"],
-			["33", "미가"],
-			["34", "나훔"],
-			["35", "하박국"],
-			["36", "스바나"],
-			["37", "학개"],
-			["38", "스가라"],
-			["39", "말라기"],
-			["01", "마태복음"],
-			["02", "마가복음"],
-			["03", "누가복음"],
-			["04", "요한복음"],
-			["05", "사도행전"],
-			["06", "로마서"],
-			["07", "고린도전서"],
-			["08", "고린도후서"],
-			["09", "갈라디아서"],
-			["10", "에베소서"],
-			["11", "빌립보서"],
-			["12", "골로새서"],
-			["13", "데살로니가전서"],
-			["14", "데살로니가후서"],
-			["15", "디모데전서"],
-			["16", "디모데후서"],
-			["17", "디도서"],
-			["18", "빌레몬서"],
-			["19", "히브리서"],
-			["20", "야고보서"],
-			["21", "베드로전서"],
-			["22", "베드로후서"],
-			["23", "요한이서"],
-			["24", "요한삼서"],
-			["25", "요한일서"],
-			["26", "유다서"],
-			["27", "요한계시록"]];
+		["01", "창세기"],
+		["02", "출에굽기"],
+		["03", "레위기"],
+		["04", "민수기"],
+		["05", "신명기"],
+		["06", "여호수아"],
+		["07", "사사기"],
+		["08", "룻기"],
+		["09", "사무엘상"],
+		["10", "사무엘하"],
+		["11", "열왕기상"],
+		["12", "열왕기하"],
+		["13", "역대상"],
+		["14", "역대하"],
+		["15", "에스라"],
+		["16", "느헤미야"],
+		["17", "에스더"],
+		["18", "욥기"],
+		["19", "시편"],
+		["20", "잠언"],
+		["21", "전도서"],
+		["22", "아가"],
+		["23", "이사야"],
+		["24", "예레미야"],
+		["25", "예레미야애가"],
+		["26", "애스겔"],
+		["27", "다니엘"],
+		["28", "호세아"],
+		["29", "요엘"],
+		["30", "아모스"],
+		["31", "오바다"],
+		["32", "요나"],
+		["33", "미가"],
+		["34", "나훔"],
+		["35", "하박국"],
+		["36", "스바나"],
+		["37", "학개"],
+		["38", "스가라"],
+		["39", "말라기"],
+		["01", "마태복음"],
+		["02", "마가복음"],
+		["03", "누가복음"],
+		["04", "요한복음"],
+		["05", "사도행전"],
+		["06", "로마서"],
+		["07", "고린도전서"],
+		["08", "고린도후서"],
+		["09", "갈라디아서"],
+		["10", "에베소서"],
+		["11", "빌립보서"],
+		["12", "골로새서"],
+		["13", "데살로니가전서"],
+		["14", "데살로니가후서"],
+		["15", "디모데전서"],
+		["16", "디모데후서"],
+		["17", "디도서"],
+		["18", "빌레몬서"],
+		["19", "히브리서"],
+		["20", "야고보서"],
+		["21", "베드로전서"],
+		["22", "베드로후서"],
+		["23", "요한이서"],
+		["24", "요한삼서"],
+		["25", "요한일서"],
+		["26", "유다서"],
+		["27", "요한계시록"]];
 
 		var LINE_MAX_LENGTH = 60;
 
@@ -103,10 +103,13 @@
 			for(; i<66; ++i) {
 				text += "<a href='?a=sin&id=" + dic[i][0] + "'>" + dic[i][1] + "</a><br>";
 			}
-			$("#myServerContents").html(text);
+			SetContentHTML(text);
 		}
 		else {
-			LoadText(age);
+			if (!isNaN(chapter) && !isNaN(verse))
+				SetContentHTML("<p>Displaying single line does not supported.</p>");
+			else
+				LoadText(age);
 		}
 
 		function ParseParameter() {
@@ -155,53 +158,62 @@
 
 			var text = "";
 
-
 			for(var i=0; i<lines.length; ++i){
-				var chNum = (isNaN(lines[i].split(' ')[0][1]))? 2 : 1
-				var chap = Number(lines[i].split(' ')[0].slice(chNum).split(':')[0]);
-				var ver = Number(lines[i].split(' ')[0].slice(chNum).split(':')[1]);
-				var msg = lines[i].slice(lines[i].search(' '));
+				var obj = ParseLine(lines[i]);
 
-				if (chap == 0 || ver == 0) continue;
+				if (obj.chap == 0 || obj.ver == 0) continue;
 
 				var korLength = LINE_MAX_LENGTH * 2;
 
-				if (!isNaN(chapter) && !isNaN(verse)){
-					console.log("Show A Line");
-
-					if (chap == chapter && ver == verse){
-						break;
-					}
-				}
-				else if (!isNaN(chapter)) {
+				if (!isNaN(chapter)) {
 					console.log("Show All Verses");
 
-					if (chap != chapter) continue;
+					if (obj.chap != chapter) continue;
 
 					text += ver + "절 ";
-					while(msg.length > LINE_MAX_LENGTH) {
+					while(obj.msg.length > LINE_MAX_LENGTH) {
 						var sliceIndex = 0;
-						while (msg[LINE_MAX_LENGTH - sliceIndex] != ' ') {
+						while (obj.msg[LINE_MAX_LENGTH - sliceIndex] != ' ') {
 							sliceIndex++;
 							if (sliceIndex > LINE_MAX_LENGTH) break;
 						}
 						var sliceLength = LINE_MAX_LENGTH - sliceIndex;
-						text += msg.slice(0, sliceLength) + "<br><input id=v" + i + " size=" + korLength + " type='text'/><br>";
-						msg = msg.slice(sliceLength);
+						text += GetInputHTML(obj.msg.slice(0,sliceLength), i, korLength);
+						obj.msg = obj.msg.slice(sliceLength);
 					}
-					text += msg.slice(0, LINE_MAX_LENGTH) + "<br><input id=v" + i + " size=" + korLength + " type='text'/><br>";
+					text += GetInputHTML(obj.msg.slice(0, LINE_MAX_LENGTH), i, korLength);
 					// text += msg;
 				}
-				else {
-					if (currentChapter != chap) {
-						currentChapter = chap;
-						console.log("Show All Chapters");
+				else if (currentChapter != obj.chap) {
+					currentChapter = obj.chap;
+					console.log("Show All Chapters");
 
-						text += "<a href='?a=" + age + "&id=" + id + "&c=" + chap + "'>" + chap + "장</a><br>";
-					}
+					text += "<a href='?a=" + age + "&id=" + id + "&c=" + obj.chap + "'>" + obj.chap + "장</a><br>";
 				}
 			}
 			
+			SetContentHTML(text);	
+		}
+
+		function ParseLine(line) {
+			chNum = (isNaN(line.split(' ')[0][1]))? 2 : 1;
+			chap = Number(line.split(' ')[0].slice(chNum).split(':')[0]);
+			ver = Number(line.split(' ')[0].slice(chNum).split(':')[1]);
+			msg = line.slice(line.search(' '));
+
+			return {
+				"chNum": chNum,
+				"chap": chap,
+				"ver": ver,
+				"msg": msg
+			}
+		}
+
+		function GetInputHTML(msg, i, length) {
+			return msg + "<br><input id=v" + i + " size=" + length + "type='text'/><br>";
+		}
+
+		function SetContentHTML(text) {
 			$("#myServerContents").html(text);
 		}
 
