@@ -12,6 +12,7 @@
 
 <body>
 	<div id="myServerContents"></div>
+	<span id="blank"></span>
 
 	<script type="text/javascript">
 
@@ -169,7 +170,7 @@
 
 					if (obj.chapter != p_chapter) continue;
 
-					text += ParseMsg(obj.msg, obj.verse, korLength);
+					text += ParseMsg(obj.msg, obj.verse);
 				}
 				else if (currentChapter != obj.chapter) {
 					currentChapter = obj.chapter;
@@ -196,12 +197,13 @@
 			}
 		}
 
-		function ParseMsg(msg, verse, length) {
+		function ParseMsg(msg, verse) {
 			var text = "<b>" + verse + "절</b>";
 			if (msg[1] == '<'){
 				text += " <i>" + msg.split('>')[0] + '></i>';
 				msg = msg.slice(msg.split('>')[0].length+1, msg.length);
 			}
+
 			while(msg.length > LINE_MAX_LENGTH) {
 				var sliceIndex = 0;
 				while (msg[LINE_MAX_LENGTH - sliceIndex] != ' ') {
@@ -209,10 +211,16 @@
 					if (sliceIndex > LINE_MAX_LENGTH) break;
 				}
 				var sliceLength = LINE_MAX_LENGTH - sliceIndex;
-				text += GetLineHTML(msg.slice(0,sliceLength), i, length);
+				var slicedText = msg.slice(0, sliceLength);
+				$(blank).html(slicedText);
+				text += GetLineHTML(slicedText, i, $(blank).width());
+
 				msg = msg.slice(sliceLength);
 			}
-			text += GetLineHTML(msg.slice(0, LINE_MAX_LENGTH), i, length);
+
+			var slicedText = msg.slice(0, LINE_MAX_LENGTH);
+			$(blank).html(slicedText);
+			text += GetLineHTML(slicedText, i, $(blank).width());
 
 			return text;
 		}
@@ -248,12 +256,12 @@
 			return result;
 		}
 
-		function GetLineHTML(msg, i, length) {
+		function GetLineHTML(msg, i, width) {
 			return "<div>"
-			 + "<span style='display:none'>" + msg + "</span>" 
-			 + "<span>" + msg + "</span><br>"
-			 + "<input id=v" + i + " size=" + length + " type='text' oninput='InputHandler(this)' style='font-size:12pt'/><br>"
-			 + "</div>";
+			+ "<span style='display:none'>" + msg + "</span>" 
+			+ "<span>" + msg + "</span><br>"
+			+ "<input id=v" + i + " type='text' oninput='InputHandler(this)' style='font-size:12pt; width:" + width + "px'/><br>"
+			+ "</div>";
 		}
 
 		function SetContentHTML(text) {
