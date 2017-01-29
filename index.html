@@ -228,7 +228,7 @@
 
 			// correct.slice(0, result.length)
 			var changed = correct.replace(correct.slice(0, result.length), t);
-			evt.parentElement.children[0].innerHTML = changed;
+			evt.parentElement.children[1].innerHTML = changed;
 
 			// evt.parentElement.innerHTML = evt.parentElement.innerHTML.replace(correct.slice(0,result.length), t);
 			console.log(evt.parentElement.children[0].innerHTML);
@@ -249,7 +249,11 @@
 		}
 
 		function GetLineHTML(msg, i, length) {
-			return "<div><span>" + msg + "</span><br><input id=v" + i + " size=" + length + " type='text' oninput='InputHandler(this)' style='font-size:12pt'/><br></div>";
+			return "<div>"
+			 + "<span style='display:none'>" + msg + "</span>" 
+			 + "<span>" + msg + "</span><br>"
+			 + "<input id=v" + i + " size=" + length + " type='text' oninput='InputHandler(this)' style='font-size:12pt'/><br>"
+			 + "</div>";
 		}
 
 		function SetContentHTML(text) {
